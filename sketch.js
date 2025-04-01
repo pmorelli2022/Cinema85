@@ -514,9 +514,9 @@ function drawStateShowResults() {
     if (movieResult.revealPhase >= 0) {
         let titleLine = "Your movie: " + movieResult.title;
         text(titleLine, 50, y, width - 100); // Draw Title allowing wrap
-        y += 40; getTextHeight(titleLine, 50, width - 100); // Adjust y based on actual wrapped height
+        y += getTextHeight(titleLine, width - 100) + 10; // Adjust y based on actual wrapped height
         text("Directed by: " + directorName, 50, y); // Director on next line
-        y += 20; // Add space below director  <-- Check this fixed value
+        y += 20; // Add space below director
     }
 
 
@@ -541,12 +541,39 @@ function drawStateShowResults() {
         }
     }
 
+    // --- MODIFIED Weekly Revenue Display Logic ---
     if (movieResult.revealPhase === 4) {
-        for (let i = 0; i <= min(movieResult.weekIndex, 11); i++) { if (movieResult.revenues[i] !== undefined) { text("Week " + (i + 1) + ": $" + Math.round(movieResult.revenues[i]).toLocaleString(), 50, y + i * 20); } } // Rounding applied
+        for (let i = 0; i <= min(movieResult.weekIndex, 11); i++) {
+            if (movieResult.revenues[i] !== undefined) {
+                let rawRevenue = movieResult.revenues[i];
+                let roundedRevenue = Math.round(rawRevenue);
+                let displayRevenue = roundedRevenue;
+                // If it rounded to 0 but was actually positive, display 1 instead
+                if (roundedRevenue === 0 && rawRevenue > 0) {
+                    displayRevenue = 1;
+                }
+                let weekIndex = i + 1;
+                let yPos = y + i * 20;
+                text("Week " + weekIndex + ": $" + displayRevenue.toLocaleString(), 50, yPos);
+            }
+        }
         if (elapsedTime >= 250 && movieResult.weekIndex < 12) { movieResult.weekIndex++; movieResult.phaseStartTime = currentTime; }
         if (movieResult.weekIndex >= 12) { movieResult.revealPhase = 5; movieResult.phaseStartTime = currentTime; }
     } else if (movieResult.revealPhase >= 5) {
-        for (let i = 0; i < 12; i++) { if (movieResult.revenues && movieResult.revenues.length > i && movieResult.revenues[i] !== undefined) { text("Week " + (i + 1) + ": $" + Math.round(movieResult.revenues[i]).toLocaleString(), 50, y + i * 20); } } // Rounding applied
+        for (let i = 0; i < 12; i++) {
+            if (movieResult.revenues && movieResult.revenues.length > i && movieResult.revenues[i] !== undefined) {
+                let rawRevenue = movieResult.revenues[i];
+                let roundedRevenue = Math.round(rawRevenue);
+                let displayRevenue = roundedRevenue;
+                // If it rounded to 0 but was actually positive, display 1 instead
+                if (roundedRevenue === 0 && rawRevenue > 0) {
+                    displayRevenue = 1;
+                }
+                let weekIndex = i + 1;
+                let yPos = y + i * 20;
+                text("Week " + weekIndex + ": $" + displayRevenue.toLocaleString(), 50, yPos);
+            }
+        }
         y += 12 * 20;
     }
 
@@ -557,9 +584,47 @@ function drawStateShowResults() {
 
      if (movieResult.revealPhase === 7 && elapsedTime >= 500) { movieResult.revealPhase = (movieResult.oscar_status === OSCAR_STATUS_WIN) ? 8 : 9; movieResult.phaseStartTime = currentTime; }
 
-    if (movieResult.revealPhase === 8) { if (movieResult.revenues && movieResult.revenues.length > 12) { for (let i = 12; i < movieResult.revenues.length; i++) { if(movieResult.revenues[i] !== undefined){ text("Week " + (i + 1) + ": $" + Math.round(movieResult.revenues[i]).toLocaleString(), 50, y + (i-12) * 20); } } y += (movieResult.revenues.length - 12) * 20; } if (elapsedTime >= 1000) { movieResult.revealPhase = 9; movieResult.phaseStartTime = currentTime; } } // Rounding applied
-    else if (movieResult.revealPhase === 9 && movieResult.oscar_status === OSCAR_STATUS_WIN) { if (movieResult.revenues && movieResult.revenues.length > 12) { for (let i = 12; i < movieResult.revenues.length; i++) { if(movieResult.revenues[i] !== undefined){ text("Week " + (i + 1) + ": $" + Math.round(movieResult.revenues[i]).toLocaleString(), 50, y + (i-12) * 20); } } y += (movieResult.revenues.length - 12) * 20; } } // Rounding applied
+    // --- MODIFIED Oscar Weeks Display Logic ---
+    if (movieResult.revealPhase === 8) {
+        if (movieResult.revenues && movieResult.revenues.length > 12) {
+            for (let i = 12; i < movieResult.revenues.length; i++) {
+                if(movieResult.revenues[i] !== undefined){
+                    let rawRevenue = movieResult.revenues[i];
+                    let roundedRevenue = Math.round(rawRevenue);
+                    let displayRevenue = roundedRevenue;
+                    // If it rounded to 0 but was actually positive, display 1 instead
+                    if (roundedRevenue === 0 && rawRevenue > 0) {
+                        displayRevenue = 1;
+                    }
+                    let weekIndex = i + 1;
+                    let yPos = y + (i - 12) * 20;
+                    text("Week " + weekIndex + ": $" + displayRevenue.toLocaleString(), 50, yPos);
+                }
+            }
+            y += (movieResult.revenues.length - 12) * 20;
+        }
+        if (elapsedTime >= 1000) { movieResult.revealPhase = 9; movieResult.phaseStartTime = currentTime; }
+    } else if (movieResult.revealPhase === 9 && movieResult.oscar_status === OSCAR_STATUS_WIN) {
+        if (movieResult.revenues && movieResult.revenues.length > 12) {
+             for (let i = 12; i < movieResult.revenues.length; i++) {
+                if(movieResult.revenues[i] !== undefined){
+                    let rawRevenue = movieResult.revenues[i];
+                    let roundedRevenue = Math.round(rawRevenue);
+                    let displayRevenue = roundedRevenue;
+                    // If it rounded to 0 but was actually positive, display 1 instead
+                    if (roundedRevenue === 0 && rawRevenue > 0) {
+                        displayRevenue = 1;
+                    }
+                    let weekIndex = i + 1;
+                    let yPos = y + (i - 12) * 20;
+                    text("Week " + weekIndex + ": $" + displayRevenue.toLocaleString(), 50, yPos);
+                }
+            }
+            y += (movieResult.revenues.length - 12) * 20;
+        }
+    }
 
+    // --- Rest of the results display ---
     if (movieResult.revealPhase === 9) {
         text("Total Revenue: $" + Math.round(movieResult.total_revenue).toLocaleString(), 50, y); y += 20; // Rounding applied
         if (movieResult.profit >= 0) { fill(144, 238, 144); text("Profit: $" + Math.round(movieResult.profit).toLocaleString(), 50, y); } // Rounding applied
@@ -711,7 +776,7 @@ function triggerGameOverState() {
      if (player.bankruptcyType === 'mob') goToState(STATE_GAME_OVER_MOB);
      else if (player.bankruptcyType === 'cia') goToState(STATE_GAME_OVER_CIA);
      else if (player.bankruptcyType === 'foreign') goToState(STATE_GAME_OVER_FOREIGN);
-     else goToState(STATE_GAME_OVER_BANKRUPT);
+     else goToState(STATE_GAME_OVER_BANKRUPT); // Default to normal bankruptcy
 }
 
 /*************************
@@ -733,27 +798,41 @@ function checkBudgetAndSelect(itemType, index) {
         case 'director':
              if (!currentMovie.availableDirectors || (index < -1 || index >= currentMovie.availableDirectors.length)) { player.errorMsg = "Invalid director choice."; return; }
             itemCost = (index >= 0) ? currentMovie.availableDirectors[index].cost : 0;
-            potentialPenalty = (index === 5 || index === 6) ? assignPenalty() : 0;
+            // Assign penalty based on director *quality* index, not list index
+             if (index >= 0) {
+                let directorQualityIndex = directors.findIndex(d => d.name === currentMovie.availableDirectors[index].name);
+                 // Example: Penalize lower-indexed directors in the main list (usually cheaper/less skilled)
+                 if (directorQualityIndex >= 5 && directorQualityIndex <= 10) { // Example indices for penalty risk
+                     potentialPenalty = assignPenalty();
+                 }
+            }
             nextState = STATE_CHOOSE_ACTOR;
             break;
         case 'actor':
              if (!currentMovie.availableActors || index < 0 || index >= currentMovie.availableActors.length) { player.errorMsg = "Invalid actor choice."; return; }
             itemCost = currentMovie.availableActors[index].cost;
-            potentialPenalty = (index >= 3 && index <= 6) ? assignPenalty() : 0;
+             // Assign penalty based on actor *quality* index, not list index
+             if (index >= 0) {
+                let actorQualityIndex = actors.findIndex(a => a.name === currentMovie.availableActors[index].name);
+                 // Example: Penalize lower star power or certain indices
+                 if (actorQualityIndex >= 3 && actorQualityIndex <= 8) { // Example indices for penalty risk
+                     potentialPenalty = assignPenalty();
+                 }
+            }
             nextState = STATE_SET_SFX;
             break;
         case 'sfx':
             if (index === -1 || currentMovie.sfxBudgetOptions.length === 0) itemCost = 0;
             else if (index < 0 || index >= currentMovie.sfxBudgetOptions.length) { player.errorMsg = "Invalid SFX choice."; return; }
             else itemCost = currentMovie.sfxBudgetOptions[index];
-            potentialPenalty = ((index === 0 && itemCost > 0) || itemCost === 0) ? assignGuaranteedPenalty() : 0;
+            potentialPenalty = ((index === 0 && itemCost > 0) || itemCost === 0) ? assignGuaranteedPenalty() : 0; // Penalize lowest/no option
             nextState = STATE_SET_MARKETING;
             break;
         case 'marketing':
              if (index === -1 || currentMovie.marketingBudgetOptions.length === 0) itemCost = 0;
             else if (index < 0 || index >= currentMovie.marketingBudgetOptions.length) { player.errorMsg = "Invalid Marketing choice."; return; }
             else itemCost = currentMovie.marketingBudgetOptions[index];
-             potentialPenalty = ((index === 0 && itemCost > 0) || itemCost === 0) ? assignGuaranteedPenalty() : 0;
+             potentialPenalty = ((index === 0 && itemCost > 0) || itemCost === 0) ? assignGuaranteedPenalty() : 0; // Penalize lowest/no option
             nextState = STATE_CALCULATE_RESULTS;
             break;
         default:
@@ -797,27 +876,29 @@ function finalizeSelection(itemType, index, itemCost, penalty) {
                 currentMovie.scriptIndex = index;
                 currentMovie.selectedScriptTemplate = currentMovie.scripts[index].template;
                 currentMovie.chosenHero = currentMovie.scripts[index].hero;
+                 // Assign penalty from script data
+                 currentMovie.scripts[index].penalty = (currentMovie.scripts[index].potentialPenalty) ? assignPenalty() : 0;
             } else { console.error("Error finalizing script selection: Invalid index or scripts array."); }
             break;
         case 'director':
              if (index === -1 || (currentMovie.availableDirectors && currentMovie.availableDirectors[index])) {
                 currentMovie.directorIndex = index;
-                currentMovie.directorPenalty = penalty;
+                currentMovie.directorPenalty = penalty; // Penalty was calculated in checkBudgetAndSelect
              } else { console.error("Error finalizing director selection: Invalid index or availableDirectors array.");}
             break;
         case 'actor':
              if (currentMovie.availableActors && currentMovie.availableActors[index]){
                 currentMovie.actorIndex = index;
-                currentMovie.actorPenalty = penalty;
+                currentMovie.actorPenalty = penalty; // Penalty was calculated in checkBudgetAndSelect
              } else { console.error("Error finalizing actor selection: Invalid index or availableActors array.");}
             break;
         case 'sfx':
             currentMovie.specialEffectsCost = itemCost;
-            currentMovie.specialEffectsPenalty = penalty;
+            currentMovie.specialEffectsPenalty = penalty; // Penalty was calculated in checkBudgetAndSelect
             break;
         case 'marketing':
             currentMovie.marketingCost = itemCost;
-            currentMovie.marketingPenalty = penalty;
+            currentMovie.marketingPenalty = penalty; // Penalty was calculated in checkBudgetAndSelect
             break;
         default:
              console.error("Unknown item type in finalizeSelection:", itemType);
@@ -830,34 +911,18 @@ function acceptLoan(lenderType) {
     currentMovie.lender = lenderType;
     player.errorMsg = `Financing secured from ${lenderType === 'cia' ? 'the CIA' : (lenderType === 'mob' ? 'the Mob' : 'Foreign Investors')}!`;
 
+    // Re-run checkBudgetAndSelect for the pending item, now that loan is taken
+    // This ensures the itemCost and penalty are recalculated correctly if needed
     let itemType = currentMovie.pendingSelectionType;
     let index = currentMovie.pendingSelectionIndex;
-    let itemCost = 0;
-    let penalty = 0;
-    let nextState = currentMovie.previousStateBeforeLoan !== null ? currentMovie.previousStateBeforeLoan + 1 : state + 1;
 
-    switch (itemType) {
-        case 'script':
-             if (currentMovie.scripts && currentMovie.scripts[index]) { itemCost = currentMovie.scripts[index].cost; penalty = currentMovie.scripts[index].penalty; }
-            nextState = STATE_CHOOSE_DIRECTOR; break;
-        case 'director':
-             if (index === -1 || (currentMovie.availableDirectors && currentMovie.availableDirectors[index])) { itemCost = (index >= 0) ? currentMovie.availableDirectors[index].cost : 0; penalty = (index === 5 || index === 6) ? assignPenalty() : 0; }
-            nextState = STATE_CHOOSE_ACTOR; break;
-        case 'actor':
-             if (currentMovie.availableActors && currentMovie.availableActors[index]) { itemCost = currentMovie.availableActors[index].cost; penalty = (index >= 3 && index <= 6) ? assignPenalty() : 0; }
-            nextState = STATE_SET_SFX; break;
-        case 'sfx':
-             if (index === -1 || currentMovie.sfxBudgetOptions.length === 0) itemCost = 0; else if (currentMovie.sfxBudgetOptions && currentMovie.sfxBudgetOptions[index] !== undefined) itemCost = currentMovie.sfxBudgetOptions[index]; penalty = ((index === 0 && itemCost > 0) || itemCost === 0) ? assignGuaranteedPenalty() : 0;
-            nextState = STATE_SET_MARKETING; break;
-        case 'marketing':
-             if (index === -1 || currentMovie.marketingBudgetOptions.length === 0) itemCost = 0; else if (currentMovie.marketingBudgetOptions && currentMovie.marketingBudgetOptions[index] !== undefined) itemCost = currentMovie.marketingBudgetOptions[index]; penalty = ((index === 0 && itemCost > 0) || itemCost === 0) ? assignGuaranteedPenalty() : 0;
-            nextState = STATE_CALCULATE_RESULTS; break;
-    }
+     // Clear pending state *before* re-checking budget
+    currentMovie.pendingSelectionIndex = -1;
+    currentMovie.pendingSelectionType = null;
+    currentMovie.previousStateBeforeLoan = null;
 
-    finalizeSelection(itemType, index, itemCost, penalty);
+    checkBudgetAndSelect(itemType, index); // This will now call finalizeSelection and goToState
 
-    currentMovie.pendingSelectionIndex = -1; currentMovie.pendingSelectionType = null; currentMovie.previousStateBeforeLoan = null;
-    goToState(nextState);
 }
 
 function rejectLoan() {
@@ -866,7 +931,7 @@ function rejectLoan() {
     let previousState = currentMovie.previousStateBeforeLoan;
     currentMovie.pendingSelectionIndex = -1; currentMovie.pendingSelectionType = null; currentMovie.previousStateBeforeLoan = null;
     if (previousState !== null && previousState >= 0) { goToState(previousState); }
-    else { goToState(STATE_WELCOME); }
+    else { goToState(STATE_WELCOME); } // Fallback if state is weird
 }
 
 
@@ -877,7 +942,9 @@ function getTotalCost() {
   return scriptCost + directorCost + actorCost + currentMovie.specialEffectsCost + currentMovie.marketingCost;
 }
 function calculateDynamicBudget(currentCash) {
-    return player.moviesCompleted === 0 ? 5000000 : Math.round(currentCash * 0.5); // Use round
+    // Ensure budget doesn't drop too low, maybe minimum $1M?
+    let calculated = player.moviesCompleted === 0 ? 5000000 : Math.round(currentCash * 0.5);
+    return max(1000000, calculated); // Minimum budget of $1M after first movie
 }
 function assignPenalty() { return (random(1) < 0.5) ? -floor(random(abs(MAX_PENALTY_VALUE), abs(MIN_PENALTY_VALUE) + 1)) : 0; }
 function assignGuaranteedPenalty() { return -floor(random(abs(MAX_PENALTY_VALUE), abs(MIN_PENALTY_VALUE) + 1)); }
@@ -889,7 +956,14 @@ function selectRandomDirectors() {
   let numDirs = sortedDirectors.length; if (numDirs === 0) { currentMovie.availableDirectors = []; console.log("No directors available!"); return; }
   let third = Math.max(1, Math.floor(numDirs / 3)); let lowCostThreshold = sortedDirectors[Math.min(third - 1, numDirs - 1)].cost; let highCostThreshold = sortedDirectors[Math.min(2 * third - 1, numDirs - 1)].cost;
   let lowCost = sortedDirectors.filter(d => d.cost <= lowCostThreshold); let mediumCost = sortedDirectors.filter(d => d.cost > lowCostThreshold && d.cost <= highCostThreshold); let highCost = sortedDirectors.filter(d => d.cost > highCostThreshold);
-  currentMovie.availableDirectors = [ ...shuffle(lowCost).slice(0, 5), ...shuffle(mediumCost).slice(0, 2), ...shuffle(highCost).slice(0, 1) ].sort(() => 0.5 - random());
+  // Try to get a mix, ensuring some cheaper options if available
+  currentMovie.availableDirectors = [
+      ...shuffle(lowCost).slice(0, 3),   // More low cost
+      ...shuffle(mediumCost).slice(0, 3), // Medium cost
+      ...shuffle(highCost).slice(0, 2)    // Fewer high cost
+  ].sort(() => 0.5 - random()); // Shuffle final list
+   // Ensure list isn't too long if pools were small
+   currentMovie.availableDirectors = currentMovie.availableDirectors.slice(0, 8);
   console.log("Available Directors:", currentMovie.availableDirectors.map(d => d.name));
 }
 
@@ -898,7 +972,13 @@ function selectRandomActors() {
   let numActors = sortedActors.length; if (numActors === 0) { currentMovie.availableActors = []; console.log("No actors available!"); return; }
   let third = Math.max(1, Math.floor(numActors / 3)); let lowCostThreshold = sortedActors[Math.min(third - 1, numActors - 1)].cost; let highCostThreshold = sortedActors[Math.min(2 * third - 1, numActors - 1)].cost;
   let lowCost = sortedActors.filter(a => a.cost <= lowCostThreshold); let mediumCost = sortedActors.filter(a => a.cost > lowCostThreshold && a.cost <= highCostThreshold); let highCost = sortedActors.filter(a => a.cost > highCostThreshold);
-  currentMovie.availableActors = [ ...shuffle(lowCost).slice(0, 3), ...shuffle(mediumCost).slice(0, 3), ...shuffle(highCost).slice(0, 2) ].sort(() => 0.5 - random());
+    currentMovie.availableActors = [
+      ...shuffle(lowCost).slice(0, 3),
+      ...shuffle(mediumCost).slice(0, 3),
+      ...shuffle(highCost).slice(0, 2)
+  ].sort(() => 0.5 - random()); // Shuffle final list
+   // Ensure list isn't too long
+   currentMovie.availableActors = currentMovie.availableActors.slice(0, 8);
    console.log("Available Actors:", currentMovie.availableActors.map(a => a.name));
 }
 
@@ -973,8 +1053,13 @@ function calculateMovieResults() {
     baseScore += genreSynergyModifier;
 
     let totalPenalty = 0;
+    // Ensure script penalty is accessed correctly
+    let scriptPenaltyVal = 0;
+    if (currentMovie.scriptIndex >= 0 && currentMovie.scripts && currentMovie.scripts[currentMovie.scriptIndex]) {
+        scriptPenaltyVal = currentMovie.scripts[currentMovie.scriptIndex].penalty ?? 0;
+    }
     let penaltySources = [
-        { value: currentMovie.scripts[currentMovie.scriptIndex]?.penalty ?? 0, reason: "Risky script backfired" },
+        { value: scriptPenaltyVal, reason: "Risky script backfired" },
         { value: currentMovie.directorPenalty, reason: "Director meltdown on set" },
         { value: currentMovie.actorPenalty, reason: "Actor flubbed lines" },
         { value: currentMovie.specialEffectsPenalty, reason: "Cheap effects fizzled" },
@@ -1017,18 +1102,39 @@ function calculateMovieResults() {
              forcedFlop = true;
              if (!movieResult.penaltyReasons.some(r => r.includes("interfered"))) { movieResult.penaltyReasons.push("Foreign investors interfered with production!"); }
              movieResult.penaltyReasons.push(`Foreign investors sabotaged the production! Movie flopped!`);
-             movieResult.total_revenue = effectiveBudget * random(0.05, 0.3);
+
+             let targetTotalRevenue = effectiveBudget * random(0.10, 0.35); // Target based on budget %
              movieResult.oscar_status = OSCAR_STATUS_FLOP;
-             movieResult.revenues = [];
+             movieResult.revenues = []; // Clear previous calculation
              let numWeeks = 12; let decayFactor = 0.667;
              let seriesSumFactor = (1 - Math.pow(decayFactor, numWeeks)) / (1 - decayFactor);
-             let firstWeekRevenue = (seriesSumFactor !== 0 && isFinite(seriesSumFactor)) ? movieResult.total_revenue / seriesSumFactor : 0;
-             firstWeekRevenue = max(0, isFinite(firstWeekRevenue) ? firstWeekRevenue : 0);
+             let firstWeekRevenue = (seriesSumFactor !== 0 && isFinite(seriesSumFactor)) ? targetTotalRevenue / seriesSumFactor : 0;
+             firstWeekRevenue = max(1, firstWeekRevenue); // Ensure first week is at least $1 for calculation base
              let currentFlopRevenue = firstWeekRevenue;
-             for (let week = 1; week <= numWeeks; week++) { movieResult.revenues.push(currentFlopRevenue); currentFlopRevenue *= decayFactor; currentFlopRevenue = max(0, currentFlopRevenue);}
-             let checkSum = movieResult.revenues.reduce((sum, r) => sum + r, 0);
-             let adjustmentRatio = (checkSum !== 0 && isFinite(checkSum)) ? movieResult.total_revenue / checkSum : 1;
-             if (isFinite(adjustmentRatio)) { movieResult.revenues = movieResult.revenues.map(r => max(0, r * adjustmentRatio)); }
+             let accumulatedRevenue = 0;
+
+             for (let week = 1; week <= numWeeks; week++) {
+                 let weekRev = max(1, currentFlopRevenue); // Ensure minimum $1 for calculation/storage
+                 movieResult.revenues.push(weekRev);
+                 accumulatedRevenue += weekRev; // Sum the (potentially clamped) values
+                 currentFlopRevenue *= decayFactor;
+             }
+
+             // Adjust revenues proportionally to try and match the original targetTotalRevenue, while maintaining the $1 minimum
+             let adjustmentRatio = (accumulatedRevenue !== 0 && isFinite(accumulatedRevenue)) ? targetTotalRevenue / accumulatedRevenue : 1;
+             if (isFinite(adjustmentRatio) && adjustmentRatio > 0) { // Only adjust if ratio is valid and positive
+                let adjustedSum = 0;
+                movieResult.revenues = movieResult.revenues.map(r => {
+                     let adjusted = max(1, r * adjustmentRatio); // Ensure minimum $1 after adjustment
+                     adjustedSum += adjusted;
+                     return adjusted;
+                });
+                 movieResult.total_revenue = adjustedSum; // Final total is the sum of adjusted (and clamped) weeks
+             } else {
+                  // Fallback: if adjustment fails, the total is just the sum of the $1 minimums
+                  movieResult.total_revenue = movieResult.revenues.reduce((sum, r) => sum + r, 0);
+             }
+              // Profit is calculated later based on final total_revenue
          }
     }
 
@@ -1040,25 +1146,98 @@ function calculateMovieResults() {
             movieResult.oscar_status = OSCAR_STATUS_NOMINATED;
             if (random(1) < 0.2) {
                 movieResult.oscar_status = OSCAR_STATUS_WIN; movieResult.penaltyReasons.push("Oscar Win! Extended Box Office Run!");
-                let bonusRevenue = (movieResult.revenues[11] ?? 0) * 0.667;
-                for (let week = 13; week <= 16; week++) { let currentWeekBonus = bonusRevenue * movieResult.revenueMultiplier; movieResult.revenues.push(max(0, currentWeekBonus)); movieResult.total_revenue += max(0, currentWeekBonus); bonusRevenue *= 0.667; }
+                let bonusRevenue = (movieResult.revenues[11] ?? 0) * 0.667; // Base bonus on last week of normal run
+                for (let week = 13; week <= 16; week++) {
+                    let currentWeekBonus = bonusRevenue * movieResult.revenueMultiplier; // Apply multiplier if active
+                    let bonusToAdd = max(1, currentWeekBonus); // Ensure at least $1 bonus
+                    movieResult.revenues.push(bonusToAdd);
+                    movieResult.total_revenue += bonusToAdd; // Add directly to total
+                    bonusRevenue *= 0.667; // Decay for next bonus week
+                }
                 if (!player.unlockedJohnHughes) { player.unlockedJohnHughes = true; if (!directors.find(d => d.name === "John Hughes")) { directors.push(SECRET_DIRECTOR); } movieResult.penaltyReasons.push("Milestone: John Hughes unlocked as a secret director!"); }
             } else { movieResult.penaltyReasons.push("Oscar Nomination! Good buzz!"); }
         }
     }
 
-    // --- Loan Profit Deduction ---
-    let baseProfit = movieResult.total_revenue - calculatedBudget;
-    let lenderShare = 0;
-    let finalProfit = baseProfit;
+     // --- Normal Flop Check --- (Skip if forced flop or Oscar win)
+    if (!forcedFlop && movieResult.oscar_status !== OSCAR_STATUS_WIN) {
+        let currentPenalties = penaltySources.map(p => p.value);
+        // More sensitive flop chance based on penalties
+        let penaltySum = Math.abs(currentPenalties.reduce((sum, p) => sum + (p < 0 ? p : 0), 0));
+        let flopChance = constrain(0.05 + currentPenalties.filter(p => p < 0).length * 0.08 + penaltySum * 0.008, 0.05, 0.85);
+         console.log("Flop Check - Penalties:", currentPenalties, "Penalty Sum:", penaltySum, "Flop Chance:", flopChance);
 
-    let profitBeforeFlopForCut = baseProfit;
-    if (forcedFlop) {
-         let scoreRatioBeforeSabotage = constrain(movieResult.success_score / MAX_POSSIBLE_SCORE, 0, 1);
-         let estimatedSuccessRevenue = scoreRatioBeforeSabotage * MAX_REVENUE_POTENTIAL * INITIAL_WEEK_FRACTION;
-         let estimatedTotalRevenue = max(0, estimatedSuccessRevenue) * ((1 - Math.pow(0.667, 12))/(1-0.667));
-         profitBeforeFlopForCut = estimatedTotalRevenue * movieResult.openingWeekPenalty * movieResult.revenueMultiplier - calculatedBudget;
+
+        if (random(1) < flopChance) {
+             console.log("Normal flop triggered!");
+             if (!movieResult.penaltyReasons.some(r => r.includes("sabotaged"))) { // Avoid duplicate message
+                movieResult.penaltyReasons.push(`Critical Failure! Movie flopped!`);
+             }
+
+            let targetTotalRevenue = effectiveBudget * random(0.15, 0.65); // Target based on budget %
+            movieResult.oscar_status = OSCAR_STATUS_FLOP;
+            movieResult.revenues = []; // Clear previous calculation
+            let numWeeks = 12; let decayFactor = 0.667;
+            let seriesSumFactor = (1 - Math.pow(decayFactor, numWeeks)) / (1 - decayFactor);
+            let firstWeekRevenue = (seriesSumFactor !== 0 && isFinite(seriesSumFactor)) ? targetTotalRevenue / seriesSumFactor : 0;
+            firstWeekRevenue = max(1, firstWeekRevenue); // Ensure first week is at least $1 for calculation base
+            let currentFlopRevenue = firstWeekRevenue;
+            let accumulatedRevenue = 0;
+
+            for (let week = 1; week <= numWeeks; week++) {
+                let weekRev = max(1, currentFlopRevenue); // Ensure minimum $1 for calculation/storage
+                movieResult.revenues.push(weekRev);
+                accumulatedRevenue += weekRev; // Sum the (potentially clamped) values
+                currentFlopRevenue *= decayFactor;
+            }
+
+             // Adjust revenues proportionally to try and match the original targetTotalRevenue, while maintaining the $1 minimum
+            let adjustmentRatio = (accumulatedRevenue !== 0 && isFinite(accumulatedRevenue)) ? targetTotalRevenue / accumulatedRevenue : 1;
+            if (isFinite(adjustmentRatio) && adjustmentRatio > 0) { // Only adjust if ratio is valid and positive
+                let adjustedSum = 0;
+                movieResult.revenues = movieResult.revenues.map(r => {
+                     let adjusted = max(1, r * adjustmentRatio); // Ensure minimum $1 after adjustment
+                     adjustedSum += adjusted;
+                     return adjusted;
+                 });
+                movieResult.total_revenue = adjustedSum; // Final total is the sum of adjusted (and clamped) weeks
+            } else {
+                 // Fallback: if adjustment fails, the total is just the sum of the $1 minimums
+                 movieResult.total_revenue = movieResult.revenues.reduce((sum, r) => sum + r, 0);
+            }
+             // Profit is calculated later based on final total_revenue
+        }
     }
+
+
+    // --- Profit Calculation (Recalculated AFTER potential flop adjustments) ---
+    let finalTotalRevenue = movieResult.total_revenue; // Use the potentially adjusted total revenue
+    let baseProfit = finalTotalRevenue - calculatedBudget;
+
+    // --- Loan Profit Deduction ---
+    let lenderShare = 0;
+    let finalProfit = baseProfit; // Start with base profit
+
+    // Lender cut is based on potential profit *before* any flop sabotage/chance reduced the *actual* revenue
+    let profitBeforeFlopForCut = baseProfit; // Default case: use actual profit
+    if (forcedFlop || movieResult.oscar_status === OSCAR_STATUS_FLOP) {
+        // Estimate what the profit *might* have been without the flop for calculating lender cut
+        let estimatedSuccessScore = baseScore + totalPenalty; // Use the calculated score
+        let estimatedScoreRatio = constrain(estimatedSuccessScore / MAX_POSSIBLE_SCORE, 0, 1);
+        let estimatedInitialRevenue = max(0, estimatedScoreRatio * MAX_REVENUE_POTENTIAL * INITIAL_WEEK_FRACTION);
+        let estimatedTotalRevenue = 0;
+        let estWeekly = estimatedInitialRevenue;
+         for (let week = 1; week <= 12; week++) {
+             let currentWeekEst = estWeekly;
+             if (week === 1) { currentWeekEst *= movieResult.openingWeekPenalty; } // Apply penalties/boosts
+             currentWeekEst *= movieResult.revenueMultiplier;
+             estimatedTotalRevenue += max(0, currentWeekEst);
+             estWeekly *= 0.667;
+         }
+        profitBeforeFlopForCut = estimatedTotalRevenue - calculatedBudget;
+        console.log(`Flop detected. Estimated profit for lender cut: ${profitBeforeFlopForCut} (based on score: ${estimatedSuccessScore})`);
+    }
+
 
     if (currentMovie.loanTaken && profitBeforeFlopForCut > 0) {
         let profitCutPercentage = 0;
@@ -1068,35 +1247,11 @@ function calculateMovieResults() {
         else if (currentMovie.lender === 'foreign') { profitCutPercentage = LOAN_FOREIGN_CUT; lenderName = "Foreign Investors"; }
 
         lenderShare = profitBeforeFlopForCut * profitCutPercentage;
-        finalProfit = baseProfit - lenderShare;
-        movieResult.penaltyReasons.push(`${lenderName} took their share of the profits!`);
+        finalProfit = baseProfit - lenderShare; // Deduct share from the *actual* base profit
+        movieResult.penaltyReasons.push(`${lenderName} took their cut ($${Math.round(lenderShare).toLocaleString()}) based on potential profit!`);
     }
-    movieResult.profit = finalProfit;
+    movieResult.profit = finalProfit; // Set the final profit
 
-
-    // --- Normal Flop Check --- (Skip if forced flop or Oscar win)
-    if (!forcedFlop && movieResult.oscar_status !== OSCAR_STATUS_WIN) {
-        let currentPenalties = penaltySources.map(p => p.value);
-        let flopChance = Math.min( 0.15 + currentPenalties.filter(p => p < 0).length * 0.05 + Math.abs(currentPenalties.reduce((sum, p) => sum + (p < 0 ? p : 0), 0)) * 0.005, 0.75 );
-
-        if (random(1) < flopChance) {
-             if (!movieResult.penaltyReasons.some(r => r.includes("sabotaged"))) { movieResult.penaltyReasons.push(`Critical Failure! Movie flopped!`); }
-            movieResult.total_revenue = effectiveBudget * random(0.1, 0.75);
-            let flopProfit = movieResult.total_revenue - calculatedBudget;
-            movieResult.profit = flopProfit;
-            movieResult.oscar_status = OSCAR_STATUS_FLOP;
-            movieResult.revenues = [];
-            let numWeeks = 12; let decayFactor = 0.667;
-            let seriesSumFactor = (1 - Math.pow(decayFactor, numWeeks)) / (1 - decayFactor);
-            let firstWeekRevenue = (seriesSumFactor !== 0 && isFinite(seriesSumFactor)) ? movieResult.total_revenue / seriesSumFactor : 0;
-            firstWeekRevenue = max(0, isFinite(firstWeekRevenue) ? firstWeekRevenue : 0);
-            let currentFlopRevenue = firstWeekRevenue;
-            for (let week = 1; week <= numWeeks; week++) { movieResult.revenues.push(currentFlopRevenue); currentFlopRevenue *= decayFactor; currentFlopRevenue = max(0, currentFlopRevenue);}
-            let checkSum = movieResult.revenues.reduce((sum, r) => sum + r, 0);
-            let adjustmentRatio = (checkSum !== 0 && isFinite(checkSum)) ? movieResult.total_revenue / checkSum : 1;
-            if (isFinite(adjustmentRatio)) { movieResult.revenues = movieResult.revenues.map(r => max(0, r * adjustmentRatio)); }
-        }
-    }
 
     // --- Final Updates ---
     player.cash += movieResult.profit;
@@ -1110,11 +1265,11 @@ function calculateMovieResults() {
     movieResult.finalScript = movieResult.finalScript.charAt(0).toUpperCase() + movieResult.finalScript.slice(1);
 
 
-    determineSuccessTier(calculatedBudget);
+    determineSuccessTier(calculatedBudget); // Determine tier based on *actual* revenue vs budget
 
     if (currentMovie.loanTaken && currentMovie.lender === 'foreign') {
         player.foreignControlNextMovie = true;
-        if (!movieResult.penaltyReasons.some(r => r.includes("sabotaged"))) {
+        if (!movieResult.penaltyReasons.some(r => r.includes("sabotaged"))) { // Avoid duplicate messages
              movieResult.penaltyReasons.push("Foreign investors will control your next movie!");
         }
     }
@@ -1124,10 +1279,16 @@ function calculateMovieResults() {
 
     // --- Final Bankruptcy Check - SET FLAGS ---
     if (player.cash < 0) {
-        console.log("Bankruptcy detected! Cash:", player.cash, "Loan Taken:", currentMovie.loanTaken, "Lender:", currentMovie.lender);
+        console.log("Bankruptcy detected! Cash:", player.cash, "Loan Taken:", currentMovie.loanTaken, "Lender:", currentMovie.lender, "Profit:", movieResult.profit);
         player.isBankrupt = true;
-        if (currentMovie.loanTaken) { player.bankruptcyType = currentMovie.lender; }
-        else { player.bankruptcyType = 'normal'; }
+        // Only trigger lender game over if you *lost* money *and* had their loan
+        if (currentMovie.loanTaken && movieResult.profit < 0) {
+             player.bankruptcyType = currentMovie.lender;
+             console.log("Setting bankruptcy type to lender:", player.bankruptcyType);
+        } else {
+             player.bankruptcyType = 'normal'; // Normal bankruptcy otherwise
+              console.log("Setting bankruptcy type to normal");
+        }
     } else {
         player.isBankrupt = false;
         player.bankruptcyType = null;
@@ -1137,27 +1298,34 @@ function calculateMovieResults() {
 
 function determineSuccessTier(budgetUsed) {
   let currentGenre = (currentMovie.plotIndex >= 0 && plots[currentMovie.plotIndex]) ? plots[currentMovie.plotIndex].type : "Unknown Genre";
-  let effectiveBudget = Math.max(1, budgetUsed);
-  if (movieResult.oscar_status === OSCAR_STATUS_WIN || movieResult.total_revenue >= 3 * effectiveBudget) {
+  let effectiveBudget = Math.max(1, budgetUsed); // Ensure budget isn't zero for division
+  let revenueToBudgetRatio = (effectiveBudget > 0) ? movieResult.total_revenue / effectiveBudget : 0; // Avoid division by zero
+
+  console.log(`Determining Tier: Revenue=${movieResult.total_revenue}, Budget=${effectiveBudget}, Ratio=${revenueToBudgetRatio}, Score=${movieResult.success_score}, Oscar=${movieResult.oscar_status}`);
+
+  if (movieResult.oscar_status === OSCAR_STATUS_WIN || revenueToBudgetRatio >= 3) {
     movieResult.successTier = "blockbuster"; movieResult.motivationalMessage = random(["A cinematic triumph! You’ve redefined the industry!", "The world is buzzing—your masterpiece is a global sensation!", "Cue the fireworks! You’ve smashed every record in the book!", "Hollywood bows to you—a blockbuster for the ages!"]);
-  } else if (movieResult.total_revenue >= 1.5 * effectiveBudget && movieResult.success_score >= 80) {
+  } else if (revenueToBudgetRatio >= 1.5 && movieResult.success_score >= 80) {
      movieResult.successTier = "surprise_hit"; movieResult.motivationalMessage = random(["Out of nowhere, a hit! You’ve stunned the critics!", "Underdog no more—this sleeper hit’s waking up the box office!", "Who saw this coming? You’ve struck gold unexpectedly!", "A hidden gem shines bright—bravo, maestro!"]);
-  } else if (movieResult.total_revenue > effectiveBudget && movieResult.total_revenue < 1.5 * effectiveBudget) {
+  } else if (revenueToBudgetRatio > 1) { // Any profit counts as mild success now
     movieResult.successTier = "mild_success"; movieResult.motivationalMessage = random(["Not bad at all! You’ve made a tidy little profit!", "A modest win—steady as she goes, captain!", "It’s a small victory, but the crowd’s still cheering!", "You’re in the black—keep the reels spinning!"]);
-  } else {
+  } else { // If revenue <= budget, it's some kind of flop
      movieResult.successTier = "flop";
      const flopMessagesByGenre = { "Sci-Fi Adventure": "The future wasn’t bright enough!", "Teen Comedy": "No one showed up to the pep rally!", "Action Flick": "The explosions were too small!", "Horror Thriller": "The screams were silent this time!", "Romantic Drama": "All the love was lost, alas!", "Western": "The tumbleweed rolled on by, alone!", "Spy Thriller": "Mission not accomplished!", "Fantasy Epic": "The magic fizzled—no one believed!" };
      let baseFlops = ["Ouch, a rough cut! Time to rethink the script!", "The audience walked out—better luck next reel!", "A box office bomb, but every flop’s a lesson!", "Flopped hard, huh? Dust off and aim higher!"];
      let genreMsg = flopMessagesByGenre[currentGenre] || "";
      movieResult.motivationalMessage = genreMsg ? genreMsg + " " + random(baseFlops) : random(baseFlops);
   }
+
+  // Override message if Oscar status is FLOP (can happen even if revenue technically > budget due to flop chance)
    if (movieResult.oscar_status === OSCAR_STATUS_FLOP) {
-       movieResult.successTier = "flop";
-       if (!movieResult.penaltyReasons.some(r => r.includes("sabotaged"))) {
-            movieResult.motivationalMessage = "It wasn't just bad, it was a certified FLOP! " + random( ["Try again?", "Maybe filmmaking isn't for you?", "Oof."]);
-       } else {
+       movieResult.successTier = "flop"; // Ensure tier is flop
+       if (movieResult.penaltyReasons.some(r => r.includes("sabotaged"))) {
             movieResult.motivationalMessage = "The investors weren't happy... at all. This one's a total write-off.";
+       } else if (movieResult.penaltyReasons.some(r => r.includes("flopped!"))) {
+           movieResult.motivationalMessage = "It wasn't just bad, it was a certified FLOP! " + random( ["Try again?", "Maybe filmmaking isn't for you?", "Oof."]);
        }
+       // Keep the genre-specific flop message if neither sabotage nor critical failure message is present but Oscar is FLOP
    }
 }
 
@@ -1166,31 +1334,40 @@ function determineSuccessTier(budgetUsed) {
  *************************/
 
 function goToState(newState) {
-    if (state >= STATE_GAME_OVER_BANKRUPT && newState !== STATE_WELCOME) return;
+    if (state >= STATE_GAME_OVER_BANKRUPT && newState !== STATE_WELCOME) return; // Don't transition from Game Over except to Welcome (via Reset)
 
     console.log(`Transitioning from state ${state} to ${newState}`);
     let previousState = state;
     state = newState;
-    player.errorMsg = "";
+    player.errorMsg = ""; // Clear error message on state change
 
     switch (newState) {
         case STATE_WELCOME:
-             if (previousState >= STATE_SHOW_RESULTS && previousState < STATE_GAME_OVER_BANKRUPT) { resetForNewMovie(); }
+             // Only reset movie if coming from results (and not already Game Over)
+             if (previousState === STATE_SHOW_RESULTS && !player.isBankrupt) {
+                resetForNewMovie();
+             }
+             // If coming from Game Over, resetGame() was already called by 'R' key.
              break;
         case STATE_CHOOSE_PLOT:
-             let comingFromGameOver = previousState >= STATE_GAME_OVER_BANKRUPT;
-             if (!comingFromGameOver) { resetForNewMovie(); }
-             currentMovie.budget = calculateDynamicBudget(player.cash);
+             // If not coming from Welcome or a Game Over reset, reset the movie state.
+             if (previousState !== STATE_WELCOME && previousState < STATE_GAME_OVER_BANKRUPT) {
+                 resetForNewMovie();
+             }
+             currentMovie.budget = calculateDynamicBudget(player.cash); // Calculate budget *after* potentially resetting
 
              if (player.foreignControlNextMovie) {
                  console.log("Applying foreign control for this movie...");
                  player.errorMsg = "Foreign investors demand a Romantic Drama!";
-                 let forcedPlotIndex = 4;
+                 let forcedPlotIndex = 4; // Index of "Romantic Drama"
                  currentMovie.isUnderForeignControl = true; // Flag this movie instance
                  player.foreignControlNextMovie = false; // Reset player flag now
-                 selectPlot(forcedPlotIndex); // Select plot, generates scripts, advances to next state
-                 return; // Exit early
+                 selectPlot(forcedPlotIndex); // Select plot, generates scripts, advances state
+                 return; // Exit early to prevent normal plot selection draw
              }
+             break;
+        case STATE_CHOOSE_SCRIPT:
+             // Script generation happens in selectPlot
              break;
         case STATE_CHOOSE_DIRECTOR: selectRandomDirectors(); break;
         case STATE_CHOOSE_ACTOR: selectRandomActors(); break;
@@ -1198,17 +1375,29 @@ function goToState(newState) {
         case STATE_SET_MARKETING: calculateBudgetOptions('marketing'); break;
         case STATE_CALCULATE_RESULTS:
              console.log("Entering Calculate Results State...");
-             calculateMovieResults();
-             if (state === STATE_CALCULATE_RESULTS) { goToState(STATE_SHOW_RESULTS); }
-             break;
-        case STATE_SHOW_RESULTS:
-             movieResult.phaseStartTime = millis();
-             if (player.isBankrupt) {
-                if (!movieResult.penaltyReasons.includes("YOU ARE BANKRUPT! Press any key or click to face the consequences...")) {
-                    movieResult.penaltyReasons.push("YOU ARE BANKRUPT! Press any key or click to face the consequences...");
-                }
+              // Ensure calculations run only once
+             if (previousState === STATE_SET_MARKETING) {
+                 calculateMovieResults();
+             }
+             // Immediately transition if calculation is done (or skipped)
+             if (state === STATE_CALCULATE_RESULTS) {
+                 goToState(STATE_SHOW_RESULTS);
              }
              break;
+        case STATE_SHOW_RESULTS:
+             // Ensure phase starts correctly only when entering this state
+             if (previousState === STATE_CALCULATE_RESULTS) {
+                 movieResult.phaseStartTime = millis();
+                 movieResult.weekIndex = 0; // Reset week index for display
+                 if (player.isBankrupt) {
+                     // Add bankruptcy message only once
+                    if (!movieResult.penaltyReasons.some(r => r.includes("BANKRUPT"))) {
+                        movieResult.penaltyReasons.push("YOU ARE BANKRUPT! Press any key or click to face the consequences...");
+                    }
+                 }
+             }
+             break;
+         // Game Over states are transitioned to via triggerGameOverState()
     }
 }
 
@@ -1220,16 +1409,16 @@ function resetGame() {
     { name: "Steven Spielberg", cost: 4000000, boost: 30, preferredGenres: ["Sci-Fi Adventure", "Action Flick", "Fantasy Epic"], hatedGenres: ["Horror Thriller"] }, { name: "Ridley Scott", cost: 3800000, boost: 28, preferredGenres: ["Sci-Fi Adventure", "Action Flick"], hatedGenres: ["Teen Comedy"] }, { name: "James Cameron", cost: 3900000, boost: 29, preferredGenres: ["Sci-Fi Adventure", "Action Flick"], hatedGenres: ["Romantic Drama"] }, { name: "George Lucas", cost: 4000000, boost: 30, preferredGenres: ["Sci-Fi Adventure", "Fantasy Epic"], hatedGenres: ["Horror Thriller"] }, { name: "Martin Scorsese", cost: 3900000, boost: 29, preferredGenres: ["Spy Thriller", "Romantic Drama"], hatedGenres: ["Sci-Fi Adventure", "Teen Comedy"] }, { name: "John Carpenter", cost: 400000, boost: 4, preferredGenres: ["Horror Thriller", "Sci-Fi Adventure"], hatedGenres: ["Romantic Drama", "Teen Comedy"] }, { name: "Tobe Hooper", cost: 300000, boost: 3, preferredGenres: ["Horror Thriller"], hatedGenres: ["Teen Comedy", "Fantasy Epic"] }, { name: "Joe Dante", cost: 350000, boost: 3, preferredGenres: ["Horror Thriller", "Teen Comedy"], hatedGenres: ["Western"] }, { name: "Wes Craven", cost: 450000, boost: 5, preferredGenres: ["Horror Thriller"], hatedGenres: ["Sci-Fi Adventure", "Romantic Drama"] }, { name: "John Landis", cost: 500000, boost: 6, preferredGenres: ["Teen Comedy", "Action Flick"], hatedGenres: ["Western", "Fantasy Epic"] }, { name: "Tim Burton", cost: 3700000, boost: 27, preferredGenres: ["Fantasy Epic", "Horror Thriller"], hatedGenres: ["Western", "Spy Thriller"] }, { name: "David Lynch", cost: 3600000, boost: 26, preferredGenres: ["Spy Thriller", "Horror Thriller"], hatedGenres: ["Teen Comedy", "Action Flick"] }, { name: "Francis Ford Coppola", cost: 4100000, boost: 31, preferredGenres: ["Romantic Drama", "Spy Thriller"], hatedGenres: ["Teen Comedy"] }, { name: "Brian De Palma", cost: 3800000, boost: 28, preferredGenres: ["Spy Thriller", "Action Flick", "Horror Thriller"], hatedGenres: ["Teen Comedy", "Fantasy Epic"] }, { name: "Oliver Stone", cost: 3900000, boost: 29, preferredGenres: ["Action Flick", "Spy Thriller"], hatedGenres: ["Fantasy Epic", "Teen Comedy"] }, { name: "Ron Howard", cost: 3500000, boost: 25, preferredGenres: ["Sci-Fi Adventure", "Fantasy Epic", "Romantic Drama"], hatedGenres: ["Horror Thriller"] }, { name: "Peter Jackson", cost: 4000000, boost: 30, preferredGenres: ["Fantasy Epic", "Horror Thriller"], hatedGenres: ["Spy Thriller"] }, { name: "Quentin Tarantino", cost: 4200000, boost: 32, preferredGenres: ["Action Flick", "Spy Thriller", "Western"], hatedGenres: ["Fantasy Epic", "Romantic Drama"] }, { name: "David Fincher", cost: 4100000, boost: 31, preferredGenres: ["Spy Thriller", "Horror Thriller"], hatedGenres: ["Teen Comedy", "Fantasy Epic"] }, { name: "Christopher Nolan", cost: 4300000, boost: 33, preferredGenres: ["Sci-Fi Adventure", "Action Flick", "Spy Thriller"], hatedGenres: ["Teen Comedy", "Romantic Drama"] }, { name: "Stanley Kubrick", cost: 4500000, boost: 35, preferredGenres: ["Sci-Fi Adventure", "Horror Thriller"], hatedGenres: ["Teen Comedy", "Western"] }, { name: "Alfred Hitchcock", cost: 4400000, boost: 34, preferredGenres: ["Spy Thriller", "Horror Thriller"], hatedGenres: ["Sci-Fi Adventure", "Fantasy Epic"] }, { name: "Orson Welles", cost: 4200000, boost: 32, preferredGenres: ["Romantic Drama", "Spy Thriller"], hatedGenres: ["Sci-Fi Adventure", "Teen Comedy"] }, { name: "Akira Kurosawa", cost: 4000000, boost: 30, preferredGenres: ["Action Flick", "Western", "Fantasy Epic"], hatedGenres: ["Teen Comedy", "Spy Thriller"] }, { name: "Ingmar Bergman", cost: 3900000, boost: 29, preferredGenres: ["Romantic Drama", "Fantasy Epic"], hatedGenres: ["Action Flick", "Sci-Fi Adventure"] }, { name: "Federico Fellini", cost: 3800000, boost: 28, preferredGenres: ["Romantic Drama", "Fantasy Epic"], hatedGenres: ["Action Flick", "Spy Thriller"] }, { name: "Woody Allen", cost: 3600000, boost: 26, preferredGenres: ["Romantic Drama", "Teen Comedy"], hatedGenres: ["Action Flick", "Sci-Fi Adventure", "Horror Thriller"] }, { name: "Robert Zemeckis", cost: 3700000, boost: 27, preferredGenres: ["Sci-Fi Adventure", "Teen Comedy", "Fantasy Epic"], hatedGenres: ["Horror Thriller"] }, { name: "Michael Bay", cost: 3500000, boost: 25, preferredGenres: ["Action Flick", "Sci-Fi Adventure"], hatedGenres: ["Romantic Drama", "Teen Comedy", "Western"] }, { name: "Gus Van Sant", cost: 3400000, boost: 24, preferredGenres: ["Romantic Drama"], hatedGenres: ["Action Flick", "Sci-Fi Adventure", "Fantasy Epic"] }
    ];
 
-  resetForNewMovie();
+  resetForNewMovie(); // Reset current movie state
   movieResult = { title: "", finalScript: "", success_score: 0, revenues: [], total_revenue: 0, profit: 0, oscar_status: OSCAR_STATUS_NONE, successTier: "", motivationalMessage: "", penaltyReasons: [], eraEventMsg: "", revealPhase: 0, phaseStartTime: 0, weekIndex: 0, revenueMultiplier: 1.0, openingWeekPenalty: 1.0 };
-  state = STATE_WELCOME;
+  goToState(STATE_WELCOME); // Go to welcome screen
 }
 
 function resetForNewMovie() {
   console.log("Resetting for new movie (clearing current movie details)...");
-  let previousBudget = currentMovie.budget;
+  // Don't reset budget here, calculate it in CHOOSE_PLOT state
   currentMovie = {
-      budget: previousBudget,
+      budget: 5000000, // Reset to a default, will be overwritten
       plotIndex: -1, scriptIndex: -1, directorIndex: -1, actorIndex: -1,
       specialEffectsCost: 0, marketingCost: 0,
       specialEffectsPenalty: 0, marketingPenalty: 0, directorPenalty: 0, actorPenalty: 0,
@@ -1240,6 +1429,9 @@ function resetForNewMovie() {
       previousStateBeforeLoan: null, pendingSelectionIndex: -1, pendingSelectionType: null,
       isUnderForeignControl: false // Reset this movie's flag
   };
+   // Reset movieResult object as well
+   movieResult = { title: "", finalScript: "", success_score: 0, revenues: [], total_revenue: 0, profit: 0, oscar_status: OSCAR_STATUS_NONE, successTier: "", motivationalMessage: "", penaltyReasons: [], eraEventMsg: "", revealPhase: 0, phaseStartTime: 0, weekIndex: 0, revenueMultiplier: 1.0, openingWeekPenalty: 1.0 };
+
 }
 
 
@@ -1247,17 +1439,57 @@ function resetForNewMovie() {
  * SELECTION & ACTION FUNCTIONS
  *************************/
 function generateScriptsForPlot(plotIndex) {
-    currentMovie.scripts = [];
+    currentMovie.scripts = []; // Clear existing scripts
     if(plotIndex < 0 || plotIndex >= plots.length) { console.error("Invalid plotIndex for script generation:", plotIndex); return; }
-    let isSerious = random(1) < 0.8;
-    let wordLists = { heroes: isSerious ? getSeriousHeroes(plotIndex) : getAbsurdHeroes(plotIndex), places: isSerious ? getSeriousPlaces(plotIndex) : getAbsurdPlaces(plotIndex), twists: isSerious ? getSeriousTwists(plotIndex) : getAbsurdTwists(plotIndex), villains: isSerious ? getSeriousVillains(plotIndex) : getAbsurdVillains(plotIndex), goals: isSerious ? getSeriousGoals(plotIndex) : getAbsurdGoals(plotIndex), adjectives: isSerious ? getSeriousAdjectives(plotIndex) : getAbsurdAdjectives(plotIndex), objects: getObjectsForPlot(plotIndex, isSerious) };
+
+    let isSerious = random(1) < 0.8; // Determine tone once per batch
+    let wordLists = {
+        heroes: isSerious ? getSeriousHeroes(plotIndex) : getAbsurdHeroes(plotIndex),
+        places: isSerious ? getSeriousPlaces(plotIndex) : getAbsurdPlaces(plotIndex),
+        twists: isSerious ? getSeriousTwists(plotIndex) : getAbsurdTwists(plotIndex),
+        villains: isSerious ? getSeriousVillains(plotIndex) : getAbsurdVillains(plotIndex),
+        goals: isSerious ? getSeriousGoals(plotIndex) : getAbsurdGoals(plotIndex),
+        adjectives: isSerious ? getSeriousAdjectives(plotIndex) : getAbsurdAdjectives(plotIndex),
+        objects: getObjectsForPlot(plotIndex, isSerious)
+    };
+
+    // Make sure we have enough templates, duplicate if necessary
+    let availableTemplates = [...plots[plotIndex].scripts];
+    while (availableTemplates.length < 5) {
+        availableTemplates.push(...plots[plotIndex].scripts);
+    }
+    availableTemplates = shuffle(availableTemplates); // Shuffle templates
 
     for (let i = 0; i < 5; i++) {
-        let chosenHero = random(wordLists.heroes); let template = random(plots[plotIndex].scripts);
-        let filledTemplate = template.replace("[place]", random(wordLists.places)).replace("[twist]", random(wordLists.twists)).replace("[villain]", random(wordLists.villains)).replace("[goal]", random(wordLists.goals)).replace("[adjective]", random(wordLists.adjectives)).replace("[object]", random(wordLists.objects));
-        let displayText = filledTemplate.replace("[hero]", chosenHero); displayText = displayText.charAt(0).toUpperCase() + displayText.slice(1);
-        let potentialPenalty = (i <= 1) ? assignPenalty() : 0;
-        currentMovie.scripts.push({ template: filledTemplate, displayText: displayText, cost: SCRIPT_COSTS[i], quality: SCRIPT_QUALITY[i], penalty: potentialPenalty, potentialPenalty: (i <= 1), hero: chosenHero });
+        let chosenHero = random(wordLists.heroes);
+        // Use a unique template for each script if possible
+        let template = availableTemplates[i % availableTemplates.length];
+
+        // Ensure all placeholders are replaced
+        let filledTemplate = template
+            .replace("[place]", random(wordLists.places))
+            .replace("[twist]", random(wordLists.twists))
+            .replace("[villain]", random(wordLists.villains))
+            .replace("[goal]", random(wordLists.goals))
+            .replace("[adjective]", random(wordLists.adjectives))
+            .replace("[object]", random(wordLists.objects));
+
+        let displayText = filledTemplate.replace("[hero]", chosenHero);
+        displayText = displayText.charAt(0).toUpperCase() + displayText.slice(1); // Capitalize
+
+        // Potential penalty for cheaper scripts (indices 0 and 1)
+        let potentialPenaltyFlag = (i <= 1);
+        // Penalty is assigned later in finalizeSelection based on this flag
+
+        currentMovie.scripts.push({
+            template: filledTemplate,
+            displayText: displayText,
+            cost: SCRIPT_COSTS[i],
+            quality: SCRIPT_QUALITY[i],
+            penalty: 0, // Initialize penalty to 0
+            potentialPenalty: potentialPenaltyFlag, // Store if it *could* get a penalty
+            hero: chosenHero
+        });
     }
     console.log("Generated scripts:", currentMovie.scripts.length);
 }
@@ -1266,8 +1498,8 @@ function selectPlot(index) {
     if (index >= 0 && index < plots.length) {
         console.log("Selecting plot:", plots[index].type);
         currentMovie.plotIndex = index;
-        generateScriptsForPlot(index);
-        goToState(STATE_CHOOSE_SCRIPT);
+        generateScriptsForPlot(index); // Generate scripts for the selected plot
+        goToState(STATE_CHOOSE_SCRIPT); // Move to the script selection state
     } else {
         player.errorMsg = "Invalid plot selection.";
         console.error("Invalid plot index:", index);
@@ -1280,20 +1512,51 @@ function calculateBudgetOptions(type) {
     let remainingBudget = currentMovie.budget - currentTotalCost;
     let options = [];
     let maxOptions = (type === 'sfx') ? MAX_SFX_OPTIONS : MAX_MARKETING_OPTIONS;
-    let step = SFX_MARKETING_STEP;
+    let step = SFX_MARKETING_STEP; // e.g., 100,000
 
-    if (remainingBudget >= step || currentMovie.loanTaken) {
-        let calculationBase = Math.max(step, remainingBudget);
-         let costPerOption = Math.floor(calculationBase / maxOptions / step) * step;
-         costPerOption = Math.max(step, costPerOption);
+    // Determine the maximum possible spend based on remaining budget OR loan status
+    let maxPossibleSpend = currentMovie.loanTaken ? Infinity : remainingBudget;
 
-         for (let i = 1; i <= maxOptions; i++) {
-             let optionCost = i * costPerOption;
-             if (currentMovie.loanTaken || optionCost <= remainingBudget) { options.push(optionCost); }
-             else { break; }
-         }
-         if (options.length === 0 && (remainingBudget >= step || currentMovie.loanTaken)) { options.push(step); }
+    if (maxPossibleSpend >= step) {
+        // Calculate a reasonable top option based on remaining budget (or a high value if loan taken)
+        let topOptionGuess = currentMovie.loanTaken ? max(step * maxOptions, remainingBudget * 0.8) : remainingBudget;
+        topOptionGuess = max(step, topOptionGuess); // Ensure it's at least one step
+
+        // Distribute options somewhat evenly up to the top option guess
+        let idealStep = Math.floor(topOptionGuess / maxOptions / step) * step;
+        idealStep = max(step, idealStep); // Ensure step is at least the minimum
+
+        for (let i = 1; i <= maxOptions; i++) {
+            let optionCost = i * idealStep;
+            if (optionCost <= maxPossibleSpend) {
+                options.push(optionCost);
+            } else {
+                // If even the first option is too expensive (but >= step), add just the remaining budget as an option
+                if (i === 1 && remainingBudget >= step && !currentMovie.loanTaken) {
+                    options.push(Math.floor(remainingBudget / step) * step); // Max out remaining budget
+                }
+                break; // Stop adding options if they exceed budget (and no loan)
+            }
+        }
+
+        // If no options were added but budget allows, add at least the minimum step or remaining budget
+        if (options.length === 0 && remainingBudget >= step && !currentMovie.loanTaken) {
+             options.push(Math.floor(remainingBudget / step) * step); // Max out remaining budget
+        } else if (options.length === 0 && remainingBudget < step && !currentMovie.loanTaken) {
+            // No options possible without loan
+        } else if (options.length === 0 && currentMovie.loanTaken) {
+             options.push(step); // If loan taken, always offer at least the base step
+        }
+
+    } else {
+       // Not enough budget for even the smallest step, and no loan
+       options = [];
     }
+
+
+    // Remove duplicates and sort
+    options = [...new Set(options)].sort((a, b) => a - b);
+
 
     if (type === 'sfx') { currentMovie.sfxBudgetOptions = options; }
     else { currentMovie.marketingBudgetOptions = options; }
